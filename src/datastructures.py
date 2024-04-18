@@ -31,10 +31,11 @@ class FamilyStructure:
         self._members.append(new_member)
 
     def delete_member(self, id):
-        for i, member in enumerate(self._members):
+        for member in self._members:
             if member["id"] == id:
-             del self._members[i]
-            return member
+                self._members.remove(member)
+                return {"done": True}
+        return {"error": "Member not found"}
            
 
     def get_member(self, id):
@@ -42,7 +43,7 @@ class FamilyStructure:
         for member in self._members:
             if member["id"] == id:
                 return member
-        return None
+        
 
     # this method is done, it returns a list with all the family members
     def get_all_members(self):
