@@ -28,14 +28,16 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/members', methods=['GET'])
-def handle_hello():
+def handle_hello():    
     members = jackson_family.get_all_members()
-    if members:
-        return jsonify(members), 200
-    else:
+    print(members)
+    if members is None:
         return jsonify({"error": "No members found"}), 404
 
-@app.route('/members', methods=['POST'])
+    return jsonify(members), 200
+        
+
+@app.route('/member', methods=['POST'])
 def add_member():
     data = request.json
     if not data:
@@ -46,42 +48,27 @@ def add_member():
     if not first_name or not age:
         return jsonify({"error": "Missing required fields"}), 400
     
-    lucky_numbers = data.get('lucky_numbers', [])
-    jackson_family.add_member(first_name, age, lucky_numbers)
-    
-    response_body = {
-        "message": "Member added successfully",
-        "member": {
-            "first_name": first_name,
-            "age": age,
-            "lucky_numbers": lucky_numbers
-        }
-    }
-    
-    return jsonify(response_body), 201
+   
+    add = jackson_family.add_member(data)
+    return jsonify(add), 201
 
-@app.route('/members/<int:member_id>', methods=['GET'])
-def get_member_by_id(member_id):
-    member = jackson_family.get_member(member_id)
+@app.route('/member/<int:id>', methods=['GET'])
+def get_member_by_id(id):
+    member = jackson_family.get_member(id)
     if member:
         return jsonify(member), 200
     else:
         return jsonify({"error": "Member not found"}), 404
 
-@app.route('/members/<int:member_id>', methods=['DELETE'])
-def delete_member_by_id(member_id):
-    member = jackson_family.delete_member(member_id)
+@app.route('/member/<int:id>', methods=['DELETE'])
+def delete_member_by_id(id):
+    member = jackson_family.delete_member(id)
     if member:
-        return jsonify({"message": "Member deleted successfully"}), 200
+        return jsonify(member), 200
     else:
         return jsonify({"error": "Member not found"}), 404
 
-if __name__ == '__main__':
-    # Agregar tres miembros de la familia al iniciar la aplicación
-    jackson_family.add_member("John Jackson", 33, [7, 13, 22])
-    jackson_family.add_member("Jane Jackson", 35, [10, 14, 3])
-    jackson_family.add_member("Jimmy Jackson", 5, [1])
-
+if __name__ == "__main__":
     # Definir el puerto en el que se ejecutará la aplicación
     PORT = int(os.environ.get('PORT', 3000))
 
